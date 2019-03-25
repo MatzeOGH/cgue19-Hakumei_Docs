@@ -1,0 +1,87 @@
+@startuml
+
+left to right direction
+
+skinparam monochrome true
+skinparam classAttributeIconSize 0
+hide circle
+
+class Renderer {
+    Initialize(): void 
+    Shutdown() : void
+    Render() : void
+}
+
+abstract class "{abstract}\nMesh" as Mesh {
+    - vao : uint
+    - ido : uint
+
+    Initialize() : void
+    Release(): void
+}
+class StaticMesh {
+    - vbo : uint
+    - uvbo : uint
+    + positions[*] : vec3
+    + uvs[*] : vec2
+
+    Initialize() : void 
+
+}
+class SkinnedMesh {
+    - skinbo : uint
+    - rig : Rig 
+    skinWeights[] : vec4
+}
+
+Mesh <|-- StaticMesh
+StaticMesh <|-- SkinnedMesh
+
+abstract class "{abstract}\nLight" as Light {
+    + intensity : float
+    + color : Color
+    + bCastShadow : 1
+}
+class DirectionlLight{
+    + direction : vec3
+}
+class PointLight {
+    + location : vec3
+    + radius : float
+}
+class SpotLight {
+    + innerRadius : float
+    + outerRadius : float
+}
+
+Light <|-- DirectionlLight
+Light <|-- PointLight
+PointLight <|-- SpotLight
+
+class Shader{
+    types[1..*] : ShaderType
+}
+class ShaderCompiler {
+    CompileShader(): void
+}
+class Material {
+    uniforms : uniform
+}
+
+enum ShaderType
+{
+    Vertex
+    Fragment
+    Geometry
+    Compute
+    Tessellation
+}
+
+ShaderCompiler *-- Shader
+Material --> "1" Shader : uses
+
+Renderer *--> "1" ShaderCompiler
+Renderer --> "0..*" Light
+Renderer --> "0..*" Mesh
+
+@enduml
